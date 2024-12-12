@@ -1,0 +1,387 @@
+﻿@page "/Wordle"
+@rendermode InteractiveServer
+<div @onkeydown="@OnKeyDown" tabindex="0">
+<h3>Wordle</h3>
+
+<div class="game-board">
+    @for (int i = 0; i < Rows; i++)
+    {
+        <div class="row">
+            @for (int j = 0; j < Columns; j++)
+            {
+                <div class="cell @(Board[i, j].State.ToString())">@Board[i, j].Letter</div>
+            }
+        </div>
+    }
+</div>
+</div>
+
+<style>
+    /* Game Board */
+    .game-board {
+        display: grid;
+        grid-template-rows: repeat(6, 1fr); /* 6 rows */
+        gap: 10px;
+        margin: 20px auto;
+        width: 400px; /* Adjust based on game size */
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 5 columns per row */
+        gap: 10px;
+    }
+
+    .cell {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        border: 2px solid #d3d3d3;
+        background-color: #ffffff;
+        color: #333;
+        border-radius: 5px;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    /* Cell States */
+    .cell.Empty {
+        background-color: #ffffff;
+        border-color: #d3d3d3;
+    }
+
+    .cell.Correct {
+        background-color: #6aaa64; /* Green */
+        color: #ffffff;
+        border-color: #6aaa64;
+    }
+
+    .cell.IncorrectPosition {
+        background-color: #c9b458; /* Yellow */
+        color: #ffffff;
+        border-color: #c9b458;
+    }
+
+    .cell.Incorrect {
+        background-color: #787c7e; /* Gray */
+        color: #ffffff;
+        border-color: #787c7e;
+    }
+
+    /* Keyboard */
+    .keyboard {
+        margin: 20px auto;
+        width: 450px;
+        display: grid;
+        gap: 10px;
+    }
+
+    .keyboard .row {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .key {
+        width: 40px;
+        height: 50px;
+        background-color: #d3d3d3;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.1s;
+    }
+
+    .key:hover {
+        background-color: #b3b3b3;
+        transform: scale(1.05);
+    }
+
+    .key:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    /* Key States */
+    .key.Correct {
+        background-color: #6aaa64; /* Green */
+        color: #ffffff;
+    }
+
+    .key.IncorrectPosition {
+        background-color: #c9b458; /* Yellow */
+        color: #ffffff;
+    }
+
+    .key.Incorrect {
+        background-color: #787c7e; /* Gray */
+        color: #ffffff;
+    }
+
+    /* Game Over Message */
+    p {
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+
+    /* General Layout */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        background-color: #f3f3f3;
+    }
+
+    h3 {
+        font-size: 2rem;
+        margin-top: 20px;
+        color: #333;
+    }
+
+</style>
+
+@if (GameOver)
+{
+    <p>@(IsWinner ? "🎉 You guessed the word!" : $"Game Over! The word was {SecretWord}.")</p>
+    <div class="mt-4">
+        <NavLink class="btn btn-primary btn-lg" href="escape-room-closing" Match="NavLinkMatch.All">
+            <i class="bi bi-house-door-fill me-2"></i> next stage
+        </NavLink>
+    </div>
+}
+
+<div class="keyboard" @onkeydown="@OnKeyDown">
+    @foreach (var row in KeyboardLayout)
+    {
+        <div class="row">
+            @foreach (var key in row)
+            {
+                <button class="key @(key.State.ToString())" @onclick="() => KeyPressed(key.Letter)" disabled="@GameOver">@key.Letter</button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private const int Rows = 6;
+    private const int Columns = 5;
+
+    private string[] WordList = 
+    {
+        "HELLO", "WORLD", "SMART", "HAPPY", "ANGRY", "LAUGH", "CRAZY", "QUIET", "STORM", "MONEY",
+        "HOUSE", "SLEEP", "WATER", "EARLY", "SMILE", "RIGHT", "ABOUT", "AFTER", "ALIVE", "APPLE",
+        "BRAIN", "CLEAN", "DRIVE", "EARTH", "FAITH", "HEART", "LIGHT", "NIGHT", "PLACE", "PEACE",
+        "SHARE", "THINK", "START", "TRUST", "VOICE", "WRONG", "YEARS", "YOUTH", "LUCKY", "MUSIC",
+        "HONEY", "GREAT", "FUNNY", "PARTY", "MOVIE", "PEACE", "SUGAR", "LEVEL", "QUEST", "STORY",
+        "GRASS", "GLASS", "BREAD", "CLOUD", "ALARM", "BRAVE", "JUMPY", "DREAM", "ALONE", "ROBOT",
+        "TRICK", "HAPPY", "BEACH", "DRINK", "WORRY", "TEACH", "SHOUT", "PLANT", "PRIZE", "PLANE",
+        "FRUIT", "NOBLE", "PRIME", "FORCE", "CARRY", "STAND", "SPEND", "SMELL", "VOICE", "DANCE"
+    };
+    private string SecretWord;
+    private int CurrentRow = 0;
+    private int CurrentColumn = 0;
+
+    private bool GameOver = false;
+    private bool IsWinner = false;
+
+    private Cell[,] Board = new Cell[Rows, Columns];
+    private List<List<Key>> KeyboardLayout = new List<List<Key>>()
+    {
+        new List<Key> { new Key('Q'), new Key('W'), new Key('E'), new Key('R'), new Key('T'), new Key('Y'), new Key('U'), new Key('I'), new Key('O'), new Key('P') },
+        new List<Key> { new Key('A'), new Key('S'), new Key('D'), new Key('F'), new Key('G'), new Key('H'), new Key('J'), new Key('K'), new Key('L') },
+        new List<Key> { new Key('Z'), new Key('X'), new Key('C'), new Key('V'), new Key('B'), new Key('N'), new Key('M') }
+    };
+
+    public class Cell
+    {
+        public char Letter { get; set; }
+        public CellState State { get; set; } = CellState.Empty;
+    }
+
+    public enum CellState
+    {
+        Empty,
+        Correct,
+        IncorrectPosition,
+        Incorrect
+    }
+    void OnKeyDown(KeyboardEventArgs e)
+    {
+        var t = e.Key;
+        if (t == "Backspace")
+        {
+            KeyPressed('\0');
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            KeyPressed(char.Parse(t.ToUpper()));
+            StateHasChanged();
+        }
+        catch{}
+
+        
+    }
+
+    public class Key
+    {
+        public char Letter { get; set; }
+        public KeyState State { get; set; } = KeyState.Normal;
+
+        public Key(char letter) => Letter = letter;
+    }
+
+    public enum KeyState
+    {
+        Normal,
+        Correct,
+        IncorrectPosition,
+        Incorrect
+    }
+
+    protected override void OnInitialized()
+    {
+        SecretWord = WordList[new Random().Next(WordList.Length)];
+        InitializeBoard();
+    }
+
+    private void InitializeBoard()
+    {
+        for (int i = 0; i < Rows; i++)
+        {
+            for (int j = 0; j < Columns; j++)
+            {
+                Board[i, j] = new Cell();
+            }
+        }
+    }
+
+    private void KeyPressed(char letter)
+    {
+        if (letter == '\0' && CurrentColumn>0)
+        {
+            CurrentColumn--;
+            Board[CurrentRow, CurrentColumn].Letter = '\0';
+            return;
+        }
+        if (GameOver || CurrentRow >= Rows) return;
+
+        if (CurrentColumn < Columns)
+        {
+            Board[CurrentRow, CurrentColumn].Letter = letter;
+            CurrentColumn++;
+        }
+
+        if (CurrentColumn == Columns )
+        {
+            // Board[CurrentRow, CurrentColumn].Letter = letter;
+            // StateHasChanged();
+            if (IsWordValid(new string(Enumerable.Range(0, Columns)
+                    .Select(i => Board[CurrentRow, i].Letter)
+                    .ToArray())))
+            {
+                CheckRow();
+                if (!GameOver)
+                {
+                    CurrentRow++;
+                    CurrentColumn = 0;
+                }
+            }
+            StateHasChanged();
+        }
+    }
+    bool IsWordValid(string word)
+    {
+        string apiUrl = $"https://api.dictionaryapi.dev/api/v2/entries/en/{word}";
+        using (HttpClient client = new HttpClient())
+        {
+            HttpResponseMessage response = client.GetAsync(apiUrl).Result;
+            return response.IsSuccessStatusCode; // True if word exists
+        }
+    }
+
+    private void CheckRow()
+    {
+        if (CurrentRow >= Rows) return;
+
+        string guessWord = new string(Enumerable.Range(0, Columns)
+            .Select(i => Board[CurrentRow, i].Letter)
+            .ToArray());
+        
+        if (guessWord == SecretWord)
+        {
+            MarkRowAsCorrect();
+            GameOver = true;
+            IsWinner = true;
+            return;
+        }
+
+        // Mark each letter
+        for (int i = 0; i < Columns; i++)
+        {
+            char guess = Board[CurrentRow, i].Letter;
+
+            if (guess == SecretWord[i])
+            {
+                Board[CurrentRow, i].State = CellState.Correct;
+                UpdateKeyState(guess, KeyState.Correct);
+            }
+            else if (SecretWord.Contains(guess))
+            {
+                Board[CurrentRow, i].State = CellState.IncorrectPosition;
+                UpdateKeyState(guess, KeyState.IncorrectPosition);
+            }
+            else
+            {
+                Board[CurrentRow, i].State = CellState.Incorrect;
+                UpdateKeyState(guess, KeyState.Incorrect);
+            }
+        }
+
+        if (CurrentRow == Rows - 1)
+        {
+            GameOver = true;
+        }
+    }
+    
+
+    private void MarkRowAsCorrect()
+    {
+        for (int i = 0; i < Columns; i++)
+        {
+            Board[CurrentRow, i].State = CellState.Correct;
+        }
+    }
+
+    private void UpdateKeyState(char letter, KeyState state)
+    {
+        foreach (var row in KeyboardLayout)
+        {
+            foreach (var key in row)
+            {
+                if (key.Letter == letter && state > key.State)
+                {
+                    key.State = state;
+                    return;
+                }
+            }
+        }
+    }
+}

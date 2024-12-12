@@ -1,0 +1,7 @@
+﻿<script src="js/site.js"></script>
+<script>
+    window.addEventListener("dragstart", function (e) {
+        let letter = e.target.getAttribute("data-letter");
+        e.dataTransfer.setData("text", letter);
+    });
+</script>
