@@ -1,20 +1,21 @@
 ﻿@page "/Wordle"
 @rendermode InteractiveServer
-<div @onkeydown="@OnKeyDown" tabindex="0">
-<h3>Wordle</h3>
+<div @onkeydown="@OnKeyDown" tabindex="0" class="display-4 fw-bold text-success animate__animated animate__fadeInDown">
+    <h3>Wordle</h3>
 
-<div class="game-board">
-    @for (int i = 0; i < Rows; i++)
-    {
-        <div class="row">
-            @for (int j = 0; j < Columns; j++)
-            {
-                <div class="cell @(Board[i, j].State.ToString())">@Board[i, j].Letter</div>
-            }
-        </div>
-    }
+    <div class="game-board">
+        @for (int i = 0; i < Rows; i++)
+        {
+            <div class="row">
+                @for (int j = 0; j < Columns; j++)
+                {
+                    <div class="cell @(Board[i, j].State.ToString())">@Board[i, j].Letter</div>
+                }
+            </div>
+        }
+    </div>
 </div>
-</div>
+
 
 <style>
     /* Game Board */
@@ -29,7 +30,7 @@
     .row {
         display: grid;
         grid-template-columns: repeat(5, 1fr); /* 5 columns per row */
-        gap: 10px;
+        gap: 5px;
     }
 
     .cell {
@@ -152,19 +153,39 @@
         margin-top: 20px;
         color: #333;
     }
+    body {
+        background-color: #FBDA61;
+        background-image: linear-gradient(45deg, #FBDA61 0%, #FF5ACD 100%);
+        background-size: cover;
+        background-position: center;
+        font-family: 'Roboto', sans-serif;
+        display: flex;
+        margin-bottom: 0;
+    }
 
 </style>
 
 @if (GameOver)
 {
     <p>@(IsWinner ? "🎉 You guessed the word!" : $"Game Over! The word was {SecretWord}.")</p>
-    <div class="mt-4">
-        <NavLink class="btn btn-primary btn-lg" href="escape-room-closing" Match="NavLinkMatch.All">
-            <i class="bi bi-house-door-fill me-2"></i> next stage
-        </NavLink>
-    </div>
+    @if (IsWinner)
+    {
+        <div class="mt-4">
+            <NavLink class="btn btn-primary btn-lg" href="rock-paper-scissors" Match="NavLinkMatch.All">
+                <i class="bi bi-house-door-fill me-2"></i> next stage
+            </NavLink>
+        </div>
+    }
+    else
+    {
+        <div class="mt-4">
+            <NavLink class="btn btn-primary btn-lg" href="" Match="NavLinkMatch.All">
+                <i class="bi bi-house-door-fill me-2"></i> restart
+            </NavLink>
+        </div>
+    }
 }
-
+<div class="display-4 fw-bold text-success animate__animated animate__fadeInDown">
 <div class="keyboard" @onkeydown="@OnKeyDown">
     @foreach (var row in KeyboardLayout)
     {
@@ -175,6 +196,7 @@
             }
         </div>
     }
+</div>
 </div>
 
 @code {
@@ -192,7 +214,7 @@
         "TRICK", "HAPPY", "BEACH", "DRINK", "WORRY", "TEACH", "SHOUT", "PLANT", "PRIZE", "PLANE",
         "FRUIT", "NOBLE", "PRIME", "FORCE", "CARRY", "STAND", "SPEND", "SMELL", "VOICE", "DANCE"
     };
-    private string SecretWord;
+    private string SecretWord = "";
     private int CurrentRow = 0;
     private int CurrentColumn = 0;
 
@@ -229,11 +251,22 @@
             StateHasChanged();
             return;
         }
+        if(t == "Enter")
+        {
+            KeyPressed('\n');
+            StateHasChanged();
+            return;
+        }
 
         try
         {
-            KeyPressed(char.Parse(t.ToUpper()));
-            StateHasChanged();
+            char c = (char.Parse(t.ToUpper()));
+            if ('A'<=c && 'Z'>=c)
+            {
+                KeyPressed(c);
+                StateHasChanged();
+            }
+            
         }
         catch{}
 
@@ -269,30 +302,34 @@
             for (int j = 0; j < Columns; j++)
             {
                 Board[i, j] = new Cell();
+                Board[i, j].Letter = ' ';
             }
         }
     }
 
     private void KeyPressed(char letter)
     {
-        if (letter == '\0' && CurrentColumn>0)
+        if (letter == '\0')
         {
-            CurrentColumn--;
-            Board[CurrentRow, CurrentColumn].Letter = '\0';
+            if (CurrentColumn>0)
+            {
+                CurrentColumn--;
+                Board[CurrentRow, CurrentColumn].Letter = ' ';
+            }
             return;
         }
+
+        
         if (GameOver || CurrentRow >= Rows) return;
 
-        if (CurrentColumn < Columns)
+        if (CurrentColumn < Columns && ('A'<=letter && 'Z'>=letter))
         {
             Board[CurrentRow, CurrentColumn].Letter = letter;
             CurrentColumn++;
         }
-
-        if (CurrentColumn == Columns )
+        
+        if (letter == '\n'&& CurrentColumn == Columns)
         {
-            // Board[CurrentRow, CurrentColumn].Letter = letter;
-            // StateHasChanged();
             if (IsWordValid(new string(Enumerable.Range(0, Columns)
                     .Select(i => Board[CurrentRow, i].Letter)
                     .ToArray())))
@@ -304,8 +341,23 @@
                     CurrentColumn = 0;
                 }
             }
+            
             StateHasChanged();
+            return;
         }
+        //
+        // if (CurrentColumn == Columns )
+        // {
+        //     // Board[CurrentRow, CurrentColumn].Letter = letter;
+        //     // StateHasChanged();
+        //     
+        //     
+        // }
+    }
+
+    private void asyncCheck(char letter)
+    {
+        
     }
     bool IsWordValid(string word)
     {
@@ -385,3 +437,4 @@
         }
     }
 }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />

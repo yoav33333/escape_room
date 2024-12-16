@@ -4,35 +4,102 @@
 @rendermode InteractiveServer
 
 <div class="container text-center mt-5">
-    <h1 class="display-4 text-primary">Welcome to My Escape Room</h1>
-    <p class="lead text-secondary">Can you solve the mysteries and find your way out?</p>
+    <div class="intro-box p-5 rounded shadow-lg">
+        <h1 class="display-3 fw-bold text-primary animate__animated animate__fadeIn">
+            Welcome to My Escape Room
+        </h1>
+        <p class="lead text-dark mb-4 animate__animated animate__fadeIn animate__delay-1s">
+            Can you solve the mysteries and find your way out?
+        </p>
 
-    <div class="mt-4">
-        <NavLink class="btn btn-primary btn-lg" href="maze" Match="NavLinkMatch.All">
-            <i class="bi bi-house-door-fill me-2"></i> Enter the room
-        </NavLink>
+        <div class="mt-4">
+            <NavLink class="btn btn-primary btn-lg px-5 py-3 shadow-sm btn-enter-room animate__animated animate__pulse" href="maze" Match="NavLinkMatch.All">
+                <i class="bi bi-house-door-fill me-2"></i> Enter the Room
+            </NavLink>
+        </div>
     </div>
 </div>
 
 <style>
+    /* Background and text styling */
+    body {
+        background: linear-gradient(135deg, #4e73df, #1cc88a);
+        background-size: cover;
+        background-position: center;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 50px;
+    }
+
+    .intro-box {
+        background: rgba(255, 255, 255, 0.8);
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
     h1 {
         font-family: 'Arial', sans-serif;
         font-weight: bold;
+        color: #1f3b54;
     }
 
     p {
         font-style: italic;
+        font-size: 1.2rem;
+        color: #555;
     }
 
+    /* Button Styling */
     .btn-lg {
         padding: 15px 30px;
         border-radius: 8px;
         text-transform: uppercase;
         cursor: pointer;
-        transition: background-color 0.3s, transform 0.1s;
+        font-size: 1.1rem;
+        transition: background-color 0.3s, transform 0.3s ease, box-shadow 0.2s ease;
     }
+
     .btn-lg:hover {
-         transform: scale(1.05);
-     }
+        transform: scale(1.1);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Button specific styles */
+    .btn-enter-room {
+        background: #1cc88a;
+        color: white;
+    }
+
+    .btn-enter-room:hover {
+        background: #17a673;
+    }
+
+    /* Animation Adjustments */
+    .animate__pulse {
+        animation: pulse 2s infinite;
+    }
+
+    .pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
 
 </style>
+
+<!-- External CSS for Animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />

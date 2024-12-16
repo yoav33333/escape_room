@@ -13,7 +13,6 @@
         "packagesPath": "C:\\Users\\Cyber_AI\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\Cyber_AI\\Desktop\\code\\CS\\BlazorApp1\\BlazorApp1\\obj\\",
         "projectStyle": "PackageReference",
-        "UsingMicrosoftNETSdk": false,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],

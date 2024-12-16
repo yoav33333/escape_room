@@ -21,8 +21,16 @@
       "PackagePath": "staticwebassets\\favicon.png"
     },
     {
+      "Id": "C:\\Users\\Cyber_AI\\Desktop\\code\\CS\\BlazorApp1\\BlazorApp1\\wwwroot\\game.js",
+      "PackagePath": "staticwebassets\\game.js"
+    },
+    {
       "Id": "C:\\Users\\Cyber_AI\\Desktop\\code\\CS\\BlazorApp1\\BlazorApp1\\wwwroot\\index.html",
       "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "C:\\Users\\Cyber_AI\\Desktop\\code\\CS\\BlazorApp1\\BlazorApp1\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BlazorApp1.Microsoft.AspNetCore.StaticWebAssets.props",

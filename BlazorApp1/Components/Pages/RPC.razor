@@ -1,5 +1,324 @@
-﻿<h3>RPC</h3>
+﻿@page "/rock-paper-scissors"
+@rendermode InteractiveServer
 
-@code {
-    
+<div class="game-container">
+    <div class="score-container">
+        <div class="score-box">
+            <h4>Your score:</h4>
+            <div class="score">@playerScore</div>
+        </div>
+
+        <div class="score-box">
+            <h4>Computer's score:</h4>
+            <div class="score">@computerScore</div>
+        </div>
+    </div>
+
+    <div class="choice-container">
+        <button @onclick="() => PlayerChoice(Choice.Rock)" class="choice-btn rock" disabled="@gameover">Rock</button>
+        <button @onclick="() => PlayerChoice(Choice.Paper)" class="choice-btn paper" disabled="@gameover">Paper</button>
+        <button @onclick="() => PlayerChoice(Choice.Scissors)" class="choice-btn scissors" disabled="@gameover">Scissors</button>
+    </div>
+
+    <div class="result-container">
+        @if (!string.IsNullOrEmpty(resultMessage))
+        {
+            <div class="result-text">@resultMessage</div>
+        }
+
+        <div class="game-choice">
+            <div class="player-choice">
+                <h4>Your Choice:</h4>
+                <div class="player-choice-img @rockClass @paperClass @scissorsClass">@PlayerChoiceText</div>
+            </div>
+
+            <div class="computer-choice">
+                <h4>Computer's Choice:</h4>
+                <div class="computer-choice-img @rockClass @paperClass @scissorsClass">@ComputerChoiceText</div>
+            </div>
+        </div>
+    </div>
+
+    @if (gameover)
+    {
+        @if (playerScore == 3)
+        {
+            <div class="mt-4">
+                <NavLink class="btn btn-success btn-lg" href="escape-room-closing" Match="NavLinkMatch.All">
+                    <i class="bi bi-house-door-fill me-2"></i> Next Stage
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="mt-4">
+                <NavLink class="btn btn-success btn-lg" href="" Match="NavLinkMatch.All">
+                    <i class="bi bi-house-door-fill me-2"></i> restart
+                </NavLink>
+            </div>
+            @* <div class="mt-4"> *@
+            @*     <button @onclick="resetGame" class="reset-btn">Reset Game</button> *@
+            @* </div> *@
+        }
+    }
+</div>
+
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: linear-gradient(135deg, #f4f4f4 0%, #e0e0e0 100%);
+        margin: 0;
+        padding: 0;
+    }
+
+    h3 {
+        font-size: 36px;
+        color: #444;
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .game-container {
+        width: 90%;
+        max-width: 800px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .score-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .score-box {
+        background-color: #f7f7f7;
+        border-radius: 8px;
+        padding: 10px 20px;
+        width: 45%;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .score {
+        font-size: 30px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .choice-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .choice-btn {
+        font-size: 18px;
+        padding: 15px 25px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        width: 120px;
+        text-align: center;
+    }
+
+    .choice-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .rock {
+        background-color: #ff7e5f;
+        color: white;
+    }
+
+    .paper {
+        background-color: #feb47b;
+        color: white;
+    }
+
+    .scissors {
+        background-color: #6a11cb;
+        color: white;
+    }
+
+    .result-container {
+        margin-top: 30px;
+    }
+
+    .result-text {
+        font-size: 26px;
+        font-weight: bold;
+        color: #444;
+        margin-bottom: 20px;
+    }
+
+    .game-choice {
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: 20px;
+    }
+
+    .player-choice, .computer-choice {
+        text-align: center;
+    }
+
+    .player-choice-img, .computer-choice-img {
+        margin-top: 10px;
+        font-size: 80px;
+        transition: transform 0.6s ease-in-out;
+    }
+
+    .win .player-choice-img {
+        transform: scale(1.2);
+        color: #4CAF50;
+    }
+
+    .lose .player-choice-img {
+        transform: scale(1.2);
+        color: #F44336;
+    }
+
+    .draw .player-choice-img {
+        color: #9E9E9E;
+    }
+
+    .reset-btn {
+        padding: 15px 25px;
+        font-size: 20px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: #ff9800;
+        color: white;
+        width: 200px;
+        transition: background-color 0.3s ease;
+    }
+
+    .reset-btn:hover {
+        background-color: #f57c00;
+    }
+
+    .btn-success {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        display: inline-block;
+        font-size: 18px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background-color: #388E3C;
+    }
+</style>
+
+@code
+{
+    private string PlayerChoiceText { get; set; }
+    private string ComputerChoiceText { get; set; }
+    private string resultMessage { get; set; }
+    private int playerScore = 0;
+    private int computerScore = 0;
+    private bool gameover = false;
+    private string rockClass = "";
+    private string paperClass = "";
+    private string scissorsClass = "";
+
+    enum Choice
+    {
+        Rock,
+        Paper,
+        Scissors
+    }
+
+    private void resetGame()
+    {
+        // Reset the scores and game over flag
+        playerScore = 0;
+        computerScore = 0;
+        gameover = false;
+
+        // Clear choices and result message
+        PlayerChoiceText = null;
+        ComputerChoiceText = null;
+        resultMessage = null;
+
+        // Reset class for animations
+        rockClass = paperClass = scissorsClass = "";
+
+        // Trigger UI update
+        StateHasChanged();
+    }
+
+    private void PlayerChoice(Choice playerChoice)
+    {
+        // Reset animation classes
+        rockClass = paperClass = scissorsClass = "";
+
+        // Display player choice
+        PlayerChoiceText = playerChoice.ToString();
+
+        // Simulate computer's choice
+        var computerChoice = (Choice)new Random().Next(0, 3);
+        ComputerChoiceText = computerChoice.ToString();
+
+        // Determine the winner
+        DetermineWinner(playerChoice, computerChoice);
+
+        // Check if game over (any player reaches 3 points)
+        gameover = playerScore == 3 || computerScore == 3;
+
+        // Trigger animations
+        TriggerAnimations(playerChoice, computerChoice);
+    }
+
+    private void DetermineWinner(Choice player, Choice computer)
+    {
+        if (player == computer)
+        {
+            resultMessage = "It's a Draw!";
+        }
+        else if ((player == Choice.Rock && computer == Choice.Scissors) || 
+                 (player == Choice.Paper && computer == Choice.Rock) ||
+                 (player == Choice.Scissors && computer == Choice.Paper))
+        {
+            resultMessage = "You Win!";
+            playerScore++;
+        }
+        else
+        {
+            resultMessage = "You Lose!";
+            computerScore++;
+        }
+    }
+
+    private void TriggerAnimations(Choice player, Choice computer)
+    {
+        // Animation logic for player's choice
+        if (player == Choice.Rock) rockClass = "win";
+        else if (player == Choice.Paper) paperClass = "win";
+        else if (player == Choice.Scissors) scissorsClass = "win";
+
+        // Animation for computer's choice based on result
+        if (resultMessage.Contains("Win"))
+        {
+            if (computer == Choice.Rock) rockClass = "lose";
+            else if (computer == Choice.Paper) paperClass = "lose";
+            else if (computer == Choice.Scissors) scissorsClass = "lose";
+        }
+        else if (resultMessage.Contains("Lose"))
+        {
+            if (computer == Choice.Rock) rockClass = "win";
+            else if (computer == Choice.Paper) paperClass = "win";
+            else if (computer == Choice.Scissors) scissorsClass = "win";
+        }
+    }
 }

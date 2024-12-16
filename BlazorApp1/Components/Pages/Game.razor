@@ -1,0 +1,54 @@
+﻿@page "/escape-room-closing"
+
+@* Page Title *@
+<PageTitle>Escape Room: Game Over</PageTitle>
+
+@* Container for the closing screen *@
+<div class="closing-container text-center d-flex align-items-center justify-content-center">
+    <div class="message p-5 rounded shadow">
+        <h1 class="display-4 fw-bold text-success animate__animated animate__fadeInDown">
+            🎉 Congratulations, You Escaped! 🎉
+        </h1>
+
+        <p class="lead text-muted mt-3 animate__animated animate__fadeInUp">
+            We hope you had a great time solving the puzzles! Would you like to challenge yourself again?
+        </p>
+
+        <div class="mt-5 d-flex gap-3 justify-content-center">
+            <NavLink class="btn btn-success btn-lg px-4 shadow-sm animate__animated animate__pulse animate__infinite" href="">
+                <i class="bi bi-arrow-clockwise me-2"></i> Restart Game
+            </NavLink>
+        </div>
+    </div>
+</div>
+<style>
+    .closing-container {
+        min-height: 100vh;
+        /*background: url('/images/escape-room-background.jpg') center center/cover no-repeat;*/
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .message {
+        background: rgba(255, 255, 255, 0.95); /* Slight transparency */
+        border-radius: 15px;
+        max-width: 600px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-lg {
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-lg:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+</style>
+
+@* Link to external CSS libraries for animations *@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
